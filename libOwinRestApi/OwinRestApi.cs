@@ -5,7 +5,7 @@ using Microsoft.Owin.Hosting;
 namespace libOwinRestApi
 {
 
-    public class myEventArgs : EventArgs
+    public class RESTEventArgs : EventArgs
     {
         public object argObject { get; set; }
     }
@@ -35,7 +35,7 @@ namespace libOwinRestApi
         // GET encoders 
         public object Get()
         {
-            myEventArgs args = new myEventArgs();
+            RESTEventArgs args = new RESTEventArgs();
             return RESTEvent.e_RESTEvent.OnGetRequested(this, args);
         }
 
@@ -50,11 +50,11 @@ namespace libOwinRestApi
     {
         public static RESTEvent e_RESTEvent = new RESTEvent();
 
-        public delegate object ReturnGetRequestHandler(object sender, myEventArgs args);
+        public delegate object ReturnGetRequestHandler(object sender, RESTEventArgs args);
 
         public event ReturnGetRequestHandler getRequested;
 
-        public object OnGetRequested(object sender, myEventArgs args)
+        public object OnGetRequested(object sender, RESTEventArgs args)
         {
             ReturnGetRequestHandler getRequestedEvent = getRequested;
             if (getRequestedEvent != null)

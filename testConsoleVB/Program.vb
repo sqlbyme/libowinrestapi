@@ -18,7 +18,7 @@ Module Program
 
     End Sub
 
-    Public Function e_OnGetRequested(sender As Object, args As myEventArgs)
+    Public Function e_OnGetRequested(sender As Object, args As RESTEventArgs)
         args.argObject = clsMine
         Return args
     End Function
