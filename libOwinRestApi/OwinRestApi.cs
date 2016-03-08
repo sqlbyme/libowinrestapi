@@ -1,7 +1,6 @@
 ﻿using Owin;
 using System;
 using System.Web.Http;
-using System.Collections.Generic;
 using Microsoft.Owin.Hosting;
 namespace libOwinRestApi
 {
@@ -31,62 +30,49 @@ namespace libOwinRestApi
 
     }
 
-    public class myClass { public string name { get; set; } public int myId { get; set; } }
-
     public class EncodersController : ApiController
     {
         // GET encoders 
         public object Get()
         {
-            myClass clsMine = new myClass();
-            clsMine.name = "Bob";
-            clsMine.myId = 100;
             myEventArgs args = new myEventArgs();
-            args.argObject = clsMine;
-            EventSender.myEventSender.OnStringReturnEvent(this, args);
-            //string[] arrEncoders = new string[] {"Channel 1", "Channel 2", "Channel 3", "Channel 4"};
-            return clsMine;
+            return RESTEvent.e_RESTEvent.OnGetRequested(this, args);
         }
 
         // GET encoders/1
-        public object Get(int id)
-        {
-            myClass clsMine = new myClass();
-            clsMine.myId = id;
-            myEventArgs args = new myEventArgs();
-            args.argObject = clsMine;
-            EventSender.myEventSender.OnStringReturnEvent(this, args);
-            return args.argObject;
-        }
+        //public object Get(int id)
+        //{
+
+        //}
     }
 
-    public class EventSender
+    public class RESTEvent
     {
-        public static EventSender myEventSender = new EventSender();
+        public static RESTEvent e_RESTEvent = new RESTEvent();
 
-        // the delegate
-        public delegate void ReturnStringEventHandler(object sender, myEventArgs args);
+        public delegate object ReturnGetRequestHandler(object sender, myEventArgs args);
 
-        // the event
-        public event ReturnStringEventHandler StringReturnEvent;
+        public event ReturnGetRequestHandler getRequested;
 
-        // raise the event
-        public void OnStringReturnEvent(object sender, myEventArgs args)
+        public object OnGetRequested(object sender, myEventArgs args)
         {
-            ReturnStringEventHandler myEvent = StringReturnEvent;
-            if (myEvent != null)
+            ReturnGetRequestHandler getRequestedEvent = getRequested;
+            if (getRequestedEvent != null)
             {
-                    myEvent.Invoke(this, args);
+                    return getRequestedEvent.Invoke(this, args);
             }
+            return args;
         }
 
-        public void start(myEventArgs args)
+        public void start()
         {
-            string baseAddress = "http://localhost:9001/";
+            // We have to leave the base url hard coded because of Windows 
+            // lame security model surrounding binding to addresses 
+            // and ports.  So we listen to all available ip's on
+            // port 9000.
+            string baseAddress = "http://+:9000/";
             WebApp.Start<OwinRestApi>(baseAddress);
             Console.WriteLine("Starting Server at: " + baseAddress);
-            OnStringReturnEvent(this, args);
-
         }
 
     }
