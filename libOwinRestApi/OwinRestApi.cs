@@ -5,9 +5,10 @@ using System.Collections.Generic;
 using Microsoft.Owin.Hosting;
 namespace libOwinRestApi
 {
+
     public class myEventArgs : EventArgs
     {
-        public string argValue { get; set; }
+        public object argObject { get; set; }
     }
 
     public class OwinRestApi
@@ -30,37 +31,38 @@ namespace libOwinRestApi
 
     }
 
+    public class myClass { public string name { get; set; } public int myId { get; set; } }
+
     public class EncodersController : ApiController
     {
-        public string MyString { get; set; }
-
         // GET encoders 
-        public IEnumerable<string> Get()
+        public object Get()
         {
-            return new string[] { "Nothing to see here!" };
+            myClass clsMine = new myClass();
+            clsMine.name = "Bob";
+            clsMine.myId = 100;
+            myEventArgs args = new myEventArgs();
+            args.argObject = clsMine;
+            EventSender.myEventSender.OnStringReturnEvent(this, args);
+            //string[] arrEncoders = new string[] {"Channel 1", "Channel 2", "Channel 3", "Channel 4"};
+            return clsMine;
         }
 
         // GET encoders/1
-        public string Get(int id)
+        public object Get(int id)
         {
+            myClass clsMine = new myClass();
+            clsMine.myId = id;
             myEventArgs args = new myEventArgs();
-            args.argValue = id.ToString();
-            EventSender myEventSender = new EventSender();
-            myEventSender.StringReturnEvent += MyEventSender_StringReturnEvent;
-            myEventSender.OnStringReturnEvent(this, args);
-            return args.argValue;
-        }
-
-        private void MyEventSender_StringReturnEvent(object sender, myEventArgs args)
-        {
-            Console.WriteLine("Event fired within dll.");
-            Console.WriteLine($"Event args recvd:{args.argValue.ToString()}");
+            args.argObject = clsMine;
+            EventSender.myEventSender.OnStringReturnEvent(this, args);
+            return args.argObject;
         }
     }
 
     public class EventSender
     {
-        
+        public static EventSender myEventSender = new EventSender();
 
         // the delegate
         public delegate void ReturnStringEventHandler(object sender, myEventArgs args);
@@ -69,21 +71,12 @@ namespace libOwinRestApi
         public event ReturnStringEventHandler StringReturnEvent;
 
         // raise the event
-        public virtual void OnStringReturnEvent(object sender, myEventArgs args)
+        public void OnStringReturnEvent(object sender, myEventArgs args)
         {
             ReturnStringEventHandler myEvent = StringReturnEvent;
             if (myEvent != null)
             {
-                foreach (Delegate d in myEvent.GetInvocationList())
-                {
-                    Console.WriteLine(d.Method.Name.ToString());
-                    myEvent(this, args);
-                }
-                
-            }
-            else
-            {
-                Console.WriteLine(args.argValue.ToString());
+                    myEvent.Invoke(this, args);
             }
         }
 
@@ -96,9 +89,5 @@ namespace libOwinRestApi
 
         }
 
-        public void trigger(myEventArgs args)
-        {
-            OnStringReturnEvent(this, args);
-        }
     }
 }

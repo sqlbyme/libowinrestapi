@@ -1,30 +1,26 @@
 ﻿Imports System
 Imports libOwinRestApi
 Module Program
-    Public es As New EventSender
 
+    Public Sub Main()
 
-    Private Class clsData
-        Property name As String
-        Property id As Int32
-    End Class
-
-
-
-    Sub Main()
+        Dim clsMine As New [myClass]()
+        clsMine.name = "Main Program"
         Dim args As New myEventArgs
-        args.argValue = "Mike"
-        RemoveHandler es.StringReturnEvent, AddressOf e_StringReturnEvent
-        AddHandler es.StringReturnEvent, AddressOf e_StringReturnEvent
-        es.start(args)
+        args.argObject = clsMine
+        RemoveHandler EventSender.myEventSender.StringReturnEvent, AddressOf e_StringReturnEvent
+        AddHandler EventSender.myEventSender.StringReturnEvent, AddressOf e_StringReturnEvent
+        EventSender.myEventSender.start(args)
         Console.ReadLine()
-        es.trigger(args)
+        EventSender.myEventSender.OnStringReturnEvent(EventSender.myEventSender, args)
         Console.ReadLine()
 
     End Sub
 
     Public Sub e_StringReturnEvent(sender As Object, args As myEventArgs)
-        Console.WriteLine(args.argValue.ToString())
+        For Each item As Reflection.PropertyInfo In args.argObject.GetType().GetProperties()
+            Console.WriteLine(item.Name.ToString() + ":" + item.GetValue(args.argObject, Nothing).ToString())
+        Next
         Console.WriteLine("Event fired from within the main program")
     End Sub
 
