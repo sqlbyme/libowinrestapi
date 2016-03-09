@@ -5,11 +5,6 @@ using Microsoft.Owin.Hosting;
 namespace libOwinRestApi
 {
 
-    public class RESTEventArgs : EventArgs
-    {
-        public object argObject { get; set; }
-    }
-
     public class OwinRestApi
     {
 
@@ -40,10 +35,16 @@ namespace libOwinRestApi
         }
 
         // GET encoders/1
-        //public object Get(int id)
-        //{
+        public object Get(int id)
+        {
+            RESTEventArgs args = new RESTEventArgs();
+            return RESTEvent.e_RESTEvent.OnGetRequested(id, args);
+        }
+    }
 
-        //}
+    public class RESTEventArgs : EventArgs
+    {
+        public object argObject { get; set; }
     }
 
     public class RESTEvent
@@ -59,21 +60,30 @@ namespace libOwinRestApi
             ReturnGetRequestHandler getRequestedEvent = getRequested;
             if (getRequestedEvent != null)
             {
-                    return getRequestedEvent.Invoke(this, args);
+                    return getRequestedEvent.Invoke(sender, args);
             }
             return args;
         }
+    }
 
-        public void start()
+    public class ApiServer
+    {
+        private IDisposable myServer;
+
+        public void ServerStart()
         {
             // We have to leave the base url hard coded because of Windows 
             // lame security model surrounding binding to addresses 
             // and ports.  So we listen to all available ip's on
             // port 9000.
             string baseAddress = "http://+:9000/";
-            WebApp.Start<OwinRestApi>(baseAddress);
+            myServer = WebApp.Start<OwinRestApi>(baseAddress);
             Console.WriteLine("Starting Server at: " + baseAddress);
         }
 
+        public void ServerStop()
+        {
+            myServer.Dispose();
+        }
     }
 }
