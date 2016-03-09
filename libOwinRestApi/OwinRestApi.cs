@@ -34,7 +34,7 @@ namespace libOwinRestApi
             return RESTEvent.e_RESTEvent.OnGetRequested(this, args);
         }
 
-        // GET encoders/1
+        // GET encoders/<int value>
         public object Get(int id)
         {
             RESTEventArgs args = new RESTEventArgs();
@@ -44,7 +44,7 @@ namespace libOwinRestApi
 
     public class RESTEventArgs : EventArgs
     {
-        public object argObject { get; set; }
+        public object response { get; set; }
     }
 
     public class RESTEvent
@@ -78,7 +78,6 @@ namespace libOwinRestApi
             // port 9000.
             string baseAddress = "http://+:9000/";
             myServer = WebApp.Start<OwinRestApi>(baseAddress);
-            Console.WriteLine("Starting Server at: " + baseAddress);
         }
 
         public void ServerStop()

@@ -19,10 +19,6 @@ Module Program
     End Sub
 
     Public Function e_OnGetRequested(sender As Object, args As RESTEventArgs)
-        ' TODO: Remove the below line when done testing
-        'Console.WriteLine(sender.request.requesturi.absolutepath.ToString())
-
-
 
         Dim encoder1 As New Encoder()
         encoder1.encId = 1
@@ -47,19 +43,20 @@ Module Program
         encoders_array(1) = encoder2
         encoders_array(2) = encoder3
 
-        args.argObject = encoders_array
+        args.response = encoders_array
+
         If sender.GetType() Is GetType(libOwinRestApi.EncodersController) Then
-            Return args.argObject
-        ElseIf sender <= encoders_array.Length() Then
-            Return args.argObject(sender - 1)
+            Return args
+        ElseIf sender <= encoders_array.Length() And sender - 1 >= 0 Then
+            Return args.response(sender - 1)
         Else
             Dim myObj As New Object()
             myObj = New String("Boo, nothing was found")
-            args.argObject = myObj
+            args.response = myObj
             Return args
         End If
-    End Function
 
+    End Function
 
 End Module
 
